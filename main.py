@@ -9,6 +9,10 @@ from modules.visualization import Visualizer
 from modules.physics import PhysicsAnalyzer
 from modules.performance_analysis import PerformanceAnalyzer
 from modules.power_analysis import PowerAnalyzer
+from modules.scoring import StrokeScorer
+from modules.coach import CoachFeedback
+from modules.biomechanics import BiomechanicsAnalyzer
+
 
 logger = setup_logger()
 
@@ -92,14 +96,34 @@ def main():
     stroke_df = analyzer.to_dataframe()
 
     performance = (
-    PerformanceAnalyzer(stroke_df)
-    .calculate_efficiency()
-    .calculate_consistency()
-    .detect_fatigue()
+        PerformanceAnalyzer(stroke_df)
+        .calculate_efficiency()
+        .calculate_consistency()
+        .detect_fatigue()
 )
 
     stroke_df = performance.get_dataframe()
 
+    # -------------------------
+    # Stroke Scoring
+    # -------------------------
+
+    scorer = (
+        StrokeScorer(stroke_df)
+        .calculate_scores()
+        .grade()
+    )
+
+    stroke_df = scorer.get_dataframe()
+    
+    biomechanics = BiomechanicsAnalyzer(df, peaks)
+
+    stroke_df["BoatRun"] = biomechanics.calculate_boatrun()
+
+    stroke_df["SpeedDrop"] = biomechanics.calculate_speed_loss()
+
+    stroke_df["PeakAcceleration2"] = biomechanics.calculate_peak_acceleration()
+    
     print("\nStroke Summary")
 
     print(stroke_df.head())
@@ -112,7 +136,34 @@ def main():
 
     print("Performance Summary")
 
+    print()
+
+    print("Average Stroke Score")
+
+    print(round(stroke_df["Score"].mean(), 2))
+
+    print()
+
+    print("Grade Distribution")
+
+    print(
+        stroke_df["Grade"].value_counts()
+    )
+
     print(performance.summarize())
+
+    coach = CoachFeedback(stroke_df)
+
+    feedback = coach.analyze()
+
+    print()
+
+    print("=" * 60)
+    print("COACH FEEDBACK")
+    print("=" * 60)
+
+    for item in feedback:
+        print("-", item)
 
     print("\nStrongest Stroke\n")
 
@@ -157,14 +208,20 @@ def main():
 
     visualizer.plot_fatigue(stroke_df)
 
+    visualizer.plot_power()
+
+    visualizer.plot_drag()
+
+    visualizer.plot_work()
+
+    visualizer.plot_scores(stroke_df)
+
+    visualizer.plot_boatrun(stroke_df)
+
+    visualizer.plot_speed_loss(stroke_df)
+
     logger.info("Analysis Complete")
 
 
 if __name__ == "__main__":
     main()
-
-visualizer.plot_power()
-
-visualizer.plot_drag()
-
-visualizer.plot_work()

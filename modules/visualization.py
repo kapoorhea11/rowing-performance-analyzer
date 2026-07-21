@@ -194,3 +194,72 @@ class Visualizer:
         plt.grid()
 
         plt.show()
+
+    def plot_scores(self, stroke_df):
+
+        plt.figure(figsize=(12,5))
+
+        plt.plot(
+
+            stroke_df["Stroke"],
+
+            stroke_df["Score"]
+
+        )
+
+        plt.ylim(0,100)
+
+        plt.title("Stroke Quality Score")
+
+        plt.xlabel("Stroke")
+
+        plt.ylabel("Score")
+
+        plt.grid()
+
+        plt.show()
+
+    def plot_boatrun(self, stroke_df):
+
+        plt.figure(figsize=(12,5))
+
+        plt.plot(
+
+            stroke_df["Stroke"],
+
+            stroke_df["BoatRun"]
+
+        )
+
+        plt.title("Boat Run per Stroke")
+
+        plt.xlabel("Stroke")
+
+        plt.ylabel("Meters")
+
+        plt.grid()
+
+        plt.show()
+
+
+    def plot_speed_loss(self, stroke_df):
+
+        plt.figure(figsize=(12,5))
+
+        plt.plot(
+
+            stroke_df["Stroke"],
+
+            stroke_df["SpeedDrop"]
+
+        )
+
+        plt.title("Speed Loss During Stroke")
+
+        plt.xlabel("Stroke")
+
+        plt.ylabel("m/s")
+
+        plt.grid()
+
+        plt.show()
