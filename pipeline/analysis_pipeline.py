@@ -5,6 +5,7 @@ from modules.stroke_detection import StrokeDetector
 from modules.stroke_analysis import StrokeAnalyzer
 from modules.performance_analysis import PerformanceAnalyzer
 from modules.scoring import StrokeScorer
+from modules.biomechanics import BiomechanicsAnalyzer
 
 
 class AnalysisPipeline:
@@ -100,5 +101,26 @@ class AnalysisPipeline:
         )
 
         stroke_df = scorer.get_dataframe()
+
+        # -------------------------
+        # Biomechanics
+        # -------------------------
+
+        biomechanics = BiomechanicsAnalyzer(
+            self.df,
+            peaks
+        )
+
+        stroke_df["BoatRun"] = (
+            biomechanics.calculate_boatrun()
+        )
+
+        stroke_df["SpeedDrop"] = (
+            biomechanics.calculate_speed_loss()
+        )
+
+        stroke_df["PeakAcceleration2"] = (
+            biomechanics.calculate_peak_acceleration()
+        )
 
         return self.df, stroke_df, peaks
