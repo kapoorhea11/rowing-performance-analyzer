@@ -15,3 +15,8 @@
 2026-07-22 11:05:10,387 | INFO | Finished.
 2026-07-22 11:11:30,989 | INFO | Loading data...
 2026-07-22 11:11:41,348 | INFO | Finished.
+2026-07-23 11:03:10,201 | INFO | Loading data...
+2026-07-23 11:03:38,023 | INFO | Finished.
+2026-07-23 11:10:15,917 | INFO | Loading rowing data.
+2026-07-23 11:10:15,944 | INFO | Running real per-stroke analysis.
+2026-07-23 11:10:15,970 | INFO | Focused per-stroke analysis completed.

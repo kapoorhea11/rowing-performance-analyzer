@@ -1,0 +1,25 @@
+ROWING SESSION COACH REPORT
+========================================
+
+Overall rating: Strong
+Session score: 82.3/100
+
+Strongest area: Speed retention (87.6/100)
+Main area to improve: Speed consistency (67.7/100)
+
+Fatigue finding: Sustained performance decline began near stroke 530, 26.6 minutes, and 5130 meters. Detection confidence was 37.6% (low).
+Fatigue confidence: 37.6% (Low)
+
+Recommendation: Focus on producing more repeatable strokes and reducing stroke-to-stroke speed variation. Pay particular attention after approximately stroke 530.
+
+COMPONENT SCORES
+----------------------------------------
+Speed retention: 87.6/100
+Distance per stroke: 82.2/100
+Rhythm control: 84.9/100
+Speed consistency: 67.7/100
+
+IMPORTANT INTERPRETATION
+----------------------------------------
+The fatigue result represents an estimated sustained performance decline relative to the athlete's early-session baseline.
+It does not independently prove physiological fatigue or identify its cause.
