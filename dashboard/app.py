@@ -36,12 +36,17 @@ SESSIONS_OUTPUT_DIRECTORY = (
     / "sessions"
 )
 
+SAMPLE_SESSIONS_DIRECTORY = (
+    PROJECT_ROOT
+    / "outputs"
+    / "sample_sessions"
+)
+
 SOURCE_SESSIONS_DIRECTORY = (
     PROJECT_ROOT
     / "data"
     / "sessions"
 )
-
 
 # ---------------------------------------------------------
 # DATA HELPERS
@@ -68,27 +73,39 @@ def get_session_display_name(
     session_directory,
 ):
     """
-    Return the original CSV filename for an output session.
+    Return a friendly display name for a session.
     """
 
+    # -----------------------------
+    # Built-in sample sessions
+    # -----------------------------
+    if (
+        session_directory.parent
+        == SAMPLE_SESSIONS_DIRECTORY
+    ):
+        return f"📚 {session_directory.name}"
+
+    # -----------------------------
+    # User sessions
+    # -----------------------------
     source_name_file = (
         session_directory
         / "source_file.txt"
     )
 
     if source_name_file.exists():
+
         stored_name = source_name_file.read_text(
             encoding="utf-8"
         ).strip()
 
         if stored_name:
-            return stored_name
+            return f"🚣 {stored_name}"
 
     if SOURCE_SESSIONS_DIRECTORY.exists():
+
         csv_files = list(
-            SOURCE_SESSIONS_DIRECTORY.glob(
-                "*.csv"
-            )
+            SOURCE_SESSIONS_DIRECTORY.glob("*.csv")
         )
 
         output_key = normalize_session_name(
@@ -104,48 +121,65 @@ def get_session_display_name(
         ]
 
         if len(matching_files) == 1:
-            return matching_files[0].name
+            return f"🚣 {matching_files[0].name}"
 
-    return session_directory.name
+    return f"🚣 {session_directory.name}"
 
 
 def find_completed_sessions():
     """
-    Find session folders that contain both required CSV files.
+    Find all completed rowing sessions, including
+    built-in sample sessions and user-uploaded sessions.
     """
-
-    if not SESSIONS_OUTPUT_DIRECTORY.exists():
-        return []
 
     completed_sessions = []
 
-    for session_directory in sorted(
-        SESSIONS_OUTPUT_DIRECTORY.iterdir(),
-        key=lambda p: p.stat().st_mtime,
-        reverse=True,
-    ):
-        if not session_directory.is_dir():
-            continue
+    def add_valid_sessions(directory, newest_first=False):
 
-        summary_file = (
-            session_directory
-            / "data"
-            / "session_summary.csv"
+        if not directory.exists():
+            return
+
+        folders = sorted(
+            directory.iterdir(),
+            key=lambda p: p.stat().st_mtime,
+            reverse=newest_first,
         )
 
-        stroke_file = (
-            session_directory
-            / "data"
-            / "stroke_analysis.csv"
-        )
+        for session_directory in folders:
 
-        if (
-            summary_file.exists()
-            and stroke_file.exists()
-        ):
-            completed_sessions.append(
+            if not session_directory.is_dir():
+                continue
+
+            summary_file = (
                 session_directory
+                / "data"
+                / "session_summary.csv"
             )
+
+            stroke_file = (
+                session_directory
+                / "data"
+                / "stroke_analysis.csv"
+            )
+
+            if (
+                summary_file.exists()
+                and stroke_file.exists()
+            ):
+                completed_sessions.append(
+                    session_directory
+                )
+
+    # Sample sessions first
+    add_valid_sessions(
+        SAMPLE_SESSIONS_DIRECTORY
+    )
+
+    # User sessions underneath
+    add_valid_sessions(
+        SESSIONS_OUTPUT_DIRECTORY,
+        newest_first=True,
+    )
 
     return completed_sessions
 
@@ -705,15 +739,16 @@ def display_metric_chart(
 # SIDEBAR
 # ---------------------------------------------------------
 
-st.sidebar.title(
-    "Session Controls"
-)
+import tempfile
 
+st.sidebar.title("Session Controls")
 st.sidebar.markdown("---")
 
-st.sidebar.subheader(
-    "Analyze New Session"
-)
+# ---------------------------------------------------------
+# Analyze New Session
+# ---------------------------------------------------------
+
+st.sidebar.subheader("Analyze New Session")
 
 uploaded_file = st.sidebar.file_uploader(
     "Upload SpeedCoach CSV",
@@ -722,12 +757,12 @@ uploaded_file = st.sidebar.file_uploader(
 
 if uploaded_file is not None:
 
-    st.sidebar.success(
-        uploaded_file.name
+    st.sidebar.info(
+        f"Selected: {uploaded_file.name}"
     )
 
     if st.sidebar.button(
-        "🚀 Analyze Uploaded Session"
+        "🚀 Analyze Session"
     ):
 
         with st.spinner(
@@ -750,90 +785,34 @@ if uploaded_file is not None:
                     show_full_results=False,
                 )
 
-                st.session_state["selected_session"] = uploaded_file.name
-
-        st.success(
-            "Analysis complete!"
-        )
-
-        st.session_state["selected_session"] = uploaded_file.name
+        st.success("Analysis complete!")
 
         st.experimental_rerun()
 
-import tempfile
-
 st.sidebar.markdown("---")
-st.sidebar.subheader("Analyze New Session")
 
-uploaded_file = st.sidebar.file_uploader(
-    "Upload a SpeedCoach CSV",
-    type=["csv"],
-)
+# ---------------------------------------------------------
+# Previously Analyzed Sessions
+# ---------------------------------------------------------
 
-analyze_uploaded = False
-
-if uploaded_file is not None:
-    st.sidebar.info(
-        f"Selected: {uploaded_file.name}"
-    )
-
-    analyze_uploaded = st.sidebar.button(
-        "🚀 Analyze Uploaded Session"
-    )
-
-if analyze_uploaded:
-
-    with st.spinner("Analyzing uploaded session..."):
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-
-            temp_csv = (
-                Path(temp_dir)
-                / uploaded_file.name
-            )
-
-            temp_csv.write_bytes(
-                uploaded_file.getvalue()
-            )
-
-            from pipeline.real_data_pipeline import (
-                RealDataPipeline,
-            )
-
-            pipeline = RealDataPipeline()
-
-            pipeline.process_session(
-                temp_csv
-            )
-
-    st.success("Analysis complete!")
-
-    st.experimental_rerun()
-
-completed_sessions = (
-    find_completed_sessions()
-)
+completed_sessions = find_completed_sessions()
 
 if not completed_sessions:
+
     st.error(
         "No completed sessions were found in "
         "`outputs/sessions`."
     )
 
     st.info(
-        "Run `python3 main.py` and analyze at least "
-        "one session before opening the dashboard."
+        "Analyze a session to get started."
     )
 
     st.stop()
 
-
 session_directory_by_name = {
-    get_session_display_name(
-        session_directory
-    ): session_directory
-    for session_directory
-    in completed_sessions
+    get_session_display_name(session): session
+    for session in completed_sessions
 }
 
 session_names = list(
@@ -842,7 +821,7 @@ session_names = list(
 
 dashboard_mode = st.sidebar.radio(
     "Dashboard View",
-    options=[
+    [
         "Single Session",
         "Compare Sessions",
     ],
@@ -850,28 +829,9 @@ dashboard_mode = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
-default_index = 0
-
-if "selected_session" in st.session_state:
-
-    uploaded_name = st.session_state["selected_session"]
-
-    if uploaded_name in session_names:
-        default_index = session_names.index(uploaded_name)
-
-default_index = 0
-
-if "selected_session" in st.session_state:
-
-    session = st.session_state["selected_session"]
-
-    if session in session_names:
-        default_index = session_names.index(session)
-
 selected_session_name = st.sidebar.selectbox(
-    "Primary session",
+    "Primary Session",
     options=session_names,
-    index=default_index,
 )
 
 selected_session_directory = (
@@ -884,17 +844,19 @@ comparison_session_name = None
 comparison_session_directory = None
 
 if dashboard_mode == "Compare Sessions":
+
     comparison_options = [
-        session_name
-        for session_name in session_names
-        if session_name != selected_session_name
+        name
+        for name in session_names
+        if name != selected_session_name
     ]
 
     if comparison_options:
+
         comparison_session_name = (
             st.sidebar.selectbox(
-                "Comparison session",
-                options=comparison_options,
+                "Comparison Session",
+                comparison_options,
             )
         )
 
@@ -905,24 +867,16 @@ if dashboard_mode == "Compare Sessions":
         )
 
     else:
-        st.sidebar.warning(
-            "At least two completed sessions are "
-            "required for comparison."
-        )
 
-st.sidebar.write(
-    f"Completed sessions: "
-    f"{len(completed_sessions)}"
-)
+        st.sidebar.warning(
+            "At least two completed sessions are required."
+        )
 
 st.sidebar.markdown("---")
 
 st.sidebar.caption(
-    "The dashboard reads previously generated "
-    "analysis files. It does not alter the "
-    "underlying rowing data."
+    f"{len(completed_sessions)} completed sessions available."
 )
-
 
 # ---------------------------------------------------------
 # LOAD SELECTED SESSION
