@@ -1,91 +1,352 @@
-# Rowing Performance Analyzer
+# 🚣 Rowing Performance Analyzer
 
-## Purpose
+A Python-based rowing analytics platform that transforms raw GPS rowing session data into detailed performance metrics, fatigue analysis, coaching insights, and an interactive dashboard.
 
-This project analyzes per-stroke NK SpeedCoach CSV data to evaluate rowing performance, identify continuous rowing segments, detect sustained fatigue-related decline, calculate stroke-quality scores, and generate coach-friendly reports and visualizations.
+This project automatically processes rowing session CSV files, identifies individual strokes, evaluates rowing technique and consistency, detects fatigue trends, generates visualizations, and produces coach-style reports for athletes and coaches.
 
-## Current Capabilities
+---
 
-- Loads NK SpeedCoach CSV data
-- Cleans and standardizes per-stroke rowing data
-- Calculates rowing-performance metrics
-- Separates continuous rowing segments from interruptions and cooldown periods
-- Detects sustained fatigue independently within each eligible segment
-- Assigns fatigue-confidence ratings
-- Calculates session and component scores
-- Generates a written coach report
-- Exports detailed CSV results
-- Generates performance graphs
+## Features
 
-## Pipeline
+- Automatic SpeedCoach CSV import
+- Data validation and cleaning
+- Stroke detection and segmentation
+- Stroke-by-stroke performance analysis
+- Boat speed analysis
+- Stroke rate analysis
+- Distance-per-stroke calculations
+- Session segmentation
+- Fatigue detection
+- Session scoring (0–100)
+- Coach report generation
+- Automatic graphs
+- Interactive Streamlit dashboard
+- Multi-session comparison
+- Downloadable reports
 
-The analysis pipeline runs in this order:
+---
 
-1. Data loading
-2. Data standardization
-3. Real stroke analysis
-4. Session segmentation
-5. Segment-aware fatigue detection
-6. Stroke scoring
-7. Coach report generation
-8. Visualization generation
-9. Result export
+# Dashboard
 
-## Session Classification
+The Streamlit dashboard provides an interactive interface for exploring rowing performance.
 
-Every valid stroke is assigned one of three classifications:
+### Dashboard Features
 
-- `Rowing segment`
-- `Short rowing segment`
-- `Transition/Cooldown`
+- Session selector
+- Compare multiple sessions
+- Performance score cards
+- Speed trends
+- Stroke rate trends
+- Distance per stroke
+- Fatigue analysis
+- Coach summary
+- Stroke-by-stroke data table
+- CSV downloads
+- Report downloads
 
-Only valid rowing segments receive a `SessionSegment` number.
+---
 
-Short rowing segments remain visible in the results but may be excluded from fatigue analysis if they contain fewer than the required number of strokes.
+# Project Structure
 
-Transition and cooldown strokes are excluded from fatigue analysis so that stopping does not produce a false fatigue result.
-
-## Fatigue Detection
-
-Fatigue detection is performed independently within each qualifying rowing segment.
-
-The detector:
-
-- establishes an early-segment performance baseline
-- calculates rolling rowing metrics
-- measures speed and distance-per-stroke decline
-- checks whether decline is sustained
-- avoids carrying fatigue across interruptions
-- assigns a confidence score and confidence rating
-
-A fatigue signal is not considered confirmed unless the decline persists for the required duration.
-
-## Current Example Result
-
-The current SpeedCoach session contains:
-
-- 426 valid strokes
-- 399 strokes in the main rowing segment
-- 12 strokes in a short rowing segment
-- 15 transition/cooldown strokes
-- 2 identified rowing segments
-- no confirmed sustained fatigue decline
-- session score of approximately 74.5/100
-
-## Output Files
-
-The project generates:
-
-```text
-outputs/
+```
+rowing-performance-analyzer/
+│
+├── config/
+│
+├── dashboard/
+│   └── app.py
+│
 ├── data/
-│   ├── session_summary.csv
-│   └── stroke_analysis.csv
-├── figures/
-│   ├── 01_boat_speed.png
-│   ├── 02_stroke_rate.png
-│   ├── 03_distance_per_stroke.png
-│   ├── 04_stroke_score.png
-│   └── 05_fatigue_trend.png
-└── reports/
-    └── coach_report.txt
+│   └── sessions/
+│
+├── loaders/
+│
+├── modules/
+│
+├── outputs/
+│   └── sessions/
+│
+├── pipeline/
+│
+├── simulator/
+│
+├── utils/
+│
+├── visualizations/
+│
+├── main.py
+│
+├── requirements.txt
+│
+└── README.md
+```
+
+---
+
+# Analysis Pipeline
+
+The analysis pipeline consists of several stages:
+
+```
+SpeedCoach CSV
+
+        │
+
+        ▼
+
+Data Validation
+
+        │
+
+        ▼
+
+Data Cleaning
+
+        │
+
+        ▼
+
+Stroke Detection
+
+        │
+
+        ▼
+
+Stroke Analysis
+
+        │
+
+        ▼
+
+Session Segmentation
+
+        │
+
+        ▼
+
+Fatigue Detection
+
+        │
+
+        ▼
+
+Performance Scoring
+
+        │
+
+        ▼
+
+Coach Report Generation
+
+        │
+
+        ▼
+
+Graphs + Dashboard + Reports
+```
+
+---
+
+# Session Outputs
+
+Each processed rowing session generates:
+
+```
+outputs/
+└── sessions/
+    └── session_name/
+        ├── data/
+        │   ├── stroke_analysis.csv
+        │   └── session_summary.csv
+        │
+        ├── figures/
+        │   ├── boat_speed.png
+        │   ├── stroke_rate.png
+        │   ├── distance_per_stroke.png
+        │   ├── stroke_score.png
+        │   └── fatigue_trend.png
+        │
+        ├── reports/
+        │   └── coach_report.txt
+        │
+        └── source_file.txt
+```
+
+---
+
+# Performance Metrics
+
+The analyzer evaluates multiple aspects of rowing performance, including:
+
+- Boat speed
+- Stroke rate
+- Distance per stroke
+- Stroke duration
+- Stroke consistency
+- Session consistency
+- Fatigue progression
+- Segment performance
+- Overall session quality
+
+---
+
+# Session Score
+
+Each rowing session receives an overall score from **0–100** based on several weighted performance metrics.
+
+The scoring system evaluates:
+
+- Speed retention
+- Distance per stroke
+- Rhythm control
+- Speed consistency
+
+The resulting score is summarized as a coach-friendly overall rating.
+
+---
+
+# Fatigue Detection
+
+The fatigue detection algorithm analyzes changes in rowing performance throughout the session.
+
+Metrics evaluated include:
+
+- Speed decline
+- Stroke efficiency
+- Distance per stroke
+- Segment-to-segment trends
+
+The system determines whether sustained fatigue is present and provides a confidence assessment.
+
+---
+
+# Coach Report
+
+A coaching report is automatically generated for every session.
+
+The report includes:
+
+- Overall session rating
+- Session score
+- Strongest performance area
+- Primary improvement opportunity
+- Fatigue assessment
+- Personalized coaching recommendation
+
+---
+
+# Interactive Dashboard
+
+The Streamlit dashboard enables coaches and athletes to explore session data visually.
+
+Included views:
+
+- Overview
+- Performance Charts
+- Fatigue Analysis
+- Coach Report
+- Stroke Data
+- Session Comparison
+
+---
+
+# Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/rowing-performance-analyzer.git
+
+cd rowing-performance-analyzer
+```
+
+Create a virtual environment:
+
+```bash
+python3 -m venv .venv
+```
+
+Activate it:
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Running the Analyzer
+
+Analyze rowing sessions:
+
+```bash
+python3 main.py
+```
+
+The program automatically processes selected SpeedCoach CSV files and generates analysis results.
+
+---
+
+# Running the Dashboard
+
+Launch the Streamlit dashboard:
+
+```bash
+python3 -m streamlit run dashboard/app.py
+```
+
+Open:
+
+```
+http://localhost:8501
+```
+
+---
+
+# Technologies Used
+
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Streamlit
+
+---
+
+# Future Improvements
+
+Potential future enhancements include:
+
+- Heart rate integration
+- Machine learning performance prediction
+- Athlete benchmarking
+- Crew synchronization analysis
+- Live telemetry support
+- Cloud-based data storage
+- Mobile dashboard
+- Seasonal trend analysis
+
+---
+
+# License
+
+This project is intended for educational and research purposes.
+
+---
+
+# Author
+
+Developed as an independent software engineering project focused on sports analytics, rowing biomechanics, and performance visualization.

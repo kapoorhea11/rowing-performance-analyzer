@@ -5,6 +5,8 @@ from loaders.data_loader import DataLoader
 import re
 from pathlib import Path
 
+
+
 def create_session_output_directory(
     selected_file,
 ):
@@ -578,6 +580,18 @@ def process_session(
         create_session_output_directory(
             session_file
         )
+    )
+
+    source_file_name = session_file.name
+
+    source_name_file = (
+        session_output_directory
+        / "source_file.txt"
+    )
+
+    source_name_file.write_text(
+        source_file_name,
+        encoding="utf-8",
     )
 
     print(
