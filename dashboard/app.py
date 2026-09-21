@@ -1,3 +1,5 @@
+FIGURES_DIRECTORY_NAME = "figures"
+REPORTS_DIRECTORY_NAME = "reports"
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -1639,75 +1641,35 @@ if (
 # ---------------------------------------------------------
 
 with performance_tab:
-    st.header(
-        "Performance Charts"
+    st.header("Performance Charts")
+
+    figures_directory = (
+        selected_session_directory
+        / FIGURES_DIRECTORY_NAME
     )
 
-    display_metric_chart(
-        dataframe=stroke_df,
-        raw_column="Speed",
-        rolling_column="RollingSpeed",
-        title="Boat Speed",
-        y_axis_label=(
-            "Speed measured in meters per second."
-        ),
-    )
+    figure_files = [
+        ("01_boat_speed.png", "Boat Speed"),
+        ("02_stroke_rate.png", "Stroke Rate"),
+        ("03_distance_per_stroke.png", "Distance per Stroke"),
+        ("04_stroke_score.png", "Stroke Performance Score"),
+        ("05_fatigue_trend.png", "Fatigue Trend"),
+    ]
 
-    display_metric_chart(
-        dataframe=stroke_df,
-        raw_column="StrokeRate",
-        rolling_column="RollingStrokeRate",
-        title="Stroke Rate",
-        y_axis_label=(
-            "Stroke rate measured in strokes per minute."
-        ),
-    )
+    for figure_filename, figure_title in figure_files:
+        figure_path = figures_directory / figure_filename
 
-    display_metric_chart(
-        dataframe=stroke_df,
-        raw_column="DistancePerStroke",
-        rolling_column=(
-            "RollingDistancePerStroke"
-        ),
-        title="Distance per Stroke",
-        y_axis_label=(
-            "Distance traveled per stroke in meters."
-        ),
-    )
-
-    if (
-        "StrokeNumber"
-        in stroke_df.columns
-        and "StrokeScore"
-        in stroke_df.columns
-    ):
-        st.subheader(
-            "Stroke Performance Score"
-        )
-
-        stroke_score_chart = (
-            stroke_df[
-                [
-                    "StrokeNumber",
-                    "StrokeScore",
-                ]
-            ]
-            .dropna()
-            .set_index(
-                "StrokeNumber"
+        if figure_path.exists():
+            st.subheader(figure_title)
+            st.image(
+                str(figure_path),
+                use_container_width=True,
             )
-        )
-
-        st.line_chart(
-            stroke_score_chart,
-        )
-
-        st.caption(
-            "Relative per-stroke performance score "
-            "on a 0–100 scale."
-        )
-
-
+        else:
+            st.warning(
+                f"Could not find generated graph: "
+                f"{figure_filename}"
+            )
 # ---------------------------------------------------------
 # FATIGUE TAB
 # ---------------------------------------------------------
