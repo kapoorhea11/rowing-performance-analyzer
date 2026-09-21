@@ -787,7 +787,7 @@ if uploaded_file is not None:
 
         st.success("Analysis complete!")
 
-        st.experimental_rerun()
+        st.rerun()
 
 st.sidebar.markdown("---")
 
