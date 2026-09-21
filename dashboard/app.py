@@ -1663,7 +1663,7 @@ with performance_tab:
             st.subheader(figure_title)
             st.image(
                 str(figure_path),
-                use_container_width=True,
+                width="strech",
             )
         else:
             st.warning(
