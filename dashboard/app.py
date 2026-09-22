@@ -172,15 +172,15 @@ def find_completed_sessions():
                     session_directory
                 )
 
-    # Sample sessions first
-    add_valid_sessions(
-        SAMPLE_SESSIONS_DIRECTORY
-    )
-
-    # User sessions underneath
+    # User sessions first — newest analyzed session becomes the default
     add_valid_sessions(
         SESSIONS_OUTPUT_DIRECTORY,
         newest_first=True,
+    )
+
+# Built-in sample sessions after user sessions
+    add_valid_sessions(
+        SAMPLE_SESSIONS_DIRECTORY
     )
 
     return completed_sessions
